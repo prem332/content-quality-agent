@@ -24,7 +24,7 @@ import time
 from app.config import LOGS_DIR
 from app.evaluation.evaluator import EvaluatorCallFailed
 from app.evaluation.evaluator import evaluate_lesson as call_evaluator
-from app.evaluation.schemas import AttemptRecord, RunResult
+from app.evaluation.schemas import AttemptRecord, RunResult, RunStatus
 from app.generation.generator import (
     GenerationError,
     generate_first_attempt,
@@ -125,6 +125,27 @@ def route_after_evaluation(state: LessonState) -> str:
     return "finalize"
 
 
+def build_run_result(state: LessonState, status: RunStatus) -> RunResult:
+    """Build the RunResult for a finished (non-error) run from graph
+    state. Shared by finalize (writes the rejection log) and main.py's
+    /generate endpoint (builds the API response) so there is exactly one
+    place that assembles a RunResult from state."""
+    passed = status == "SHIPPED"
+    return RunResult(
+        topic=state["topic"],
+        rubric_version=state["rubric_version"],
+        status=status,
+        final_lesson=state["lesson"],
+        attempts=state["attempts_log"],
+        total_attempts=len(state["attempts_log"]),
+        remaining_failures=[c.id for c in state["failed_checks"]] if not passed else [],
+        total_latency_seconds=sum(
+            r.generation_latency_seconds + r.evaluation_latency_seconds
+            for r in state["attempts_log"]
+        ),
+    )
+
+
 def finalize(state: LessonState) -> dict:
     """Compute final_status, write the rejection log + metrics (console
     and JSON file), and update memory with this run's failure patterns.
@@ -140,19 +161,7 @@ def finalize(state: LessonState) -> dict:
 
     record_failed_checks_from_attempts(state["attempts_log"])
 
-    run_result = RunResult(
-        topic=state["topic"],
-        rubric_version=state["rubric_version"],
-        status=status,
-        final_lesson=state["lesson"],
-        attempts=state["attempts_log"],
-        total_attempts=len(state["attempts_log"]),
-        remaining_failures=[c.id for c in state["failed_checks"]] if not passed else [],
-        total_latency_seconds=sum(
-            r.generation_latency_seconds + r.evaluation_latency_seconds
-            for r in state["attempts_log"]
-        ),
-    )
+    run_result = build_run_result(state, status)
 
     metrics = run_result.compute_metrics()
 
