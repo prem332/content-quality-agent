@@ -7,13 +7,14 @@ SHIPPED_WITH_KNOWN_ISSUES / EVALUATION_ERROR / GENERATION_ERROR) is
 carried in the response body's `status` field, not the HTTP status code.
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from app.config import MAX_RETRIES, RUBRIC_VERSION
 from app.evaluation.schemas import RunResult
 from app.graph.nodes import build_run_result
 from app.graph.workflow import build_graph
+from app.guardrails.input import validate_topic
 
 app = FastAPI(
     title="Content Quality Agent",
@@ -41,6 +42,11 @@ def health() -> HealthResponse:
 
 @app.post("/generate", response_model=RunResult)
 def generate(request: GenerateRequest) -> RunResult:
+    try:
+        validate_topic(request.topic)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
     initial_state = {
         "topic": request.topic,
         "grounding_context": [],
