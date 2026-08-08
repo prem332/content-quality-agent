@@ -33,11 +33,15 @@ def _get_bool(key: str, default: bool) -> bool:
 # Model provider
 # ---------------------------------------------------------------------------
 
-# Defaults to gemini-flash-latest, not gemini-2.5-flash -- the pinned 2.5
-# version is blocked ("no longer available to new users") on freshly
-# created free-tier API keys, confirmed via a live API call.
-GENERATOR_MODEL = os.environ.get("GENERATOR_MODEL", "gemini-flash-latest")
-EVALUATOR_MODEL = os.environ.get("EVALUATOR_MODEL", "gemini-flash-latest")
+# Defaults to gemini-flash-lite-latest, not gemini-2.5-flash -- the pinned
+# 2.5 version is blocked ("no longer available to new users") on freshly
+# created free-tier API keys, confirmed via a live API call. The non-lite
+# gemini-flash-latest also works but its underlying model (gemini-3.6-flash
+# at time of writing) carries only a 20 requests/day free-tier quota, which
+# a generate-evaluate-retry loop exhausts quickly; gemini-flash-lite-latest
+# is a separate model with its own quota pool.
+GENERATOR_MODEL = os.environ.get("GENERATOR_MODEL", "gemini-flash-lite-latest")
+EVALUATOR_MODEL = os.environ.get("EVALUATOR_MODEL", "gemini-flash-lite-latest")
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")
 
 if not GOOGLE_API_KEY:
