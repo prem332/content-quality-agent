@@ -182,3 +182,47 @@ class RunResult(BaseModel):
     total_attempts: int
     remaining_failures: list[str] = Field(default_factory=list)
     total_latency_seconds: float
+
+    def to_rejection_log_text(self) -> str:
+        """Human-readable, boxed rejection log -- THE key demo artifact
+        (ARCHITECTURE.md Section 6). Shows per-attempt PASS/FAIL per
+        check, evidence, fix, and what was preserved vs. fixed on retry."""
+        width = 54
+        lines = [
+            "=" * width,
+            "          CONTENT GENERATION RUN",
+            "=" * width,
+            f"Topic: {self.topic}",
+            "",
+        ]
+        for record in self.attempts:
+            checks = record.evaluation.checks
+            passed_checks = [c for c in checks if c.status == "PASS"]
+            failed_checks = [c for c in checks if c.status == "FAIL"]
+
+            lines.append("-" * width)
+            lines.append(f"ATTEMPT {record.attempt_number}")
+            lines.append("-" * width)
+            lines.append(f"Result: {'SHIPPED' if record.passed else 'REJECTED'}")
+            lines.append(f"Checks: {len(passed_checks)}/{len(checks)} PASS")
+            lines.append("")
+
+            if record.passed:
+                for i in range(0, len(checks), 3):
+                    row = checks[i : i + 3]
+                    lines.append("  ".join(f"[PASS] {c.id}" for c in row))
+            else:
+                for c in failed_checks:
+                    lines.append(f"[FAIL] {c.id} -- {c.name}")
+                    lines.append(f"   Evidence: {c.evidence}")
+                    lines.append(f"   Fix: {c.fix}")
+                    lines.append("")
+                preserved = ", ".join(c.id for c in passed_checks) or "none"
+                fixing = ", ".join(c.id for c in failed_checks)
+                lines.append(f"Preserving: {preserved}")
+                lines.append(f"Fixing:     {fixing}")
+            lines.append("")
+
+        lines.append(f"Total Attempts: {self.total_attempts}")
+        lines.append(f"Final Status: {self.status}")
+        return "\n".join(lines)
