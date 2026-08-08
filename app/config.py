@@ -50,9 +50,24 @@ if not GOOGLE_API_KEY:
 # Token limits
 # ---------------------------------------------------------------------------
 
-GENERATOR_MAX_TOKENS = _get_int("GENERATOR_MAX_TOKENS", 2500)
+# GENERATOR_MAX_TOKENS=6000, not 2500 as originally planned -- thinking
+# tokens are deducted from this same budget (see THINKING_BUDGET_TOKENS
+# below) and a real ~900-1600 word lesson plus its thinking overhead
+# reliably needs 3200-5400 total tokens (measured across multiple live
+# generations). 2500 truncated the lesson text almost every time.
+GENERATOR_MAX_TOKENS = _get_int("GENERATOR_MAX_TOKENS", 6000)
 EVALUATOR_MAX_TOKENS = _get_int("EVALUATOR_MAX_TOKENS", 2200)
 MEMORY_MAX_TOKENS = _get_int("MEMORY_MAX_TOKENS", 400)
+
+# gemini-flash-latest cannot disable thinking (thinking_budget=0 is
+# rejected -- confirmed via a live API call) and thinking tokens are
+# deducted from the same max_output_tokens budget as the visible answer.
+# thinking_budget is a soft hint, not a hard cap -- requesting 500 still
+# produced 1465-2111 actual thinking tokens in testing, so it reduces but
+# does not bound consumption. Capping it explicitly still helps
+# cost/latency; GENERATOR_MAX_TOKENS/EVALUATOR_MAX_TOKENS provide the
+# real safety margin. 500 is a reasonable starting hint for both roles.
+THINKING_BUDGET_TOKENS = _get_int("THINKING_BUDGET_TOKENS", 500)
 
 # ---------------------------------------------------------------------------
 # Retrieval / chunking (see ARCHITECTURE.md Section 1a)
