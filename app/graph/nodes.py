@@ -17,6 +17,7 @@ short-circuits to finalize if it's already set. This keeps the graph
 topology exactly as documented while still halting the run correctly.
 """
 
+import json
 import os
 import time
 
@@ -125,12 +126,12 @@ def route_after_evaluation(state: LessonState) -> str:
 
 
 def finalize(state: LessonState) -> dict:
-    """Compute final_status, write the rejection log (console + JSON
-    file), and update memory with this run's failure patterns. Metrics
-    are added in build step 12. A final_status already set upstream means
-    an infra failure (GENERATION_ERROR/EVALUATION_ERROR) halted the run
-    before a real lesson exists -- nothing to log or learn from, so this
-    still no-ops in that case."""
+    """Compute final_status, write the rejection log + metrics (console
+    and JSON file), and update memory with this run's failure patterns.
+    A final_status already set upstream means an infra failure
+    (GENERATION_ERROR/EVALUATION_ERROR) halted the run before a real
+    lesson exists -- nothing to log or learn from, so this still no-ops
+    in that case."""
     if state.get("final_status"):
         return {}
 
@@ -153,10 +154,19 @@ def finalize(state: LessonState) -> dict:
         ),
     )
 
+    metrics = run_result.compute_metrics()
+
     os.makedirs(LOGS_DIR, exist_ok=True)
     with open(os.path.join(LOGS_DIR, "rejection_log.json"), "w", encoding="utf-8") as f:
-        f.write(run_result.model_dump_json(indent=2))
+        bundle = run_result.model_dump()
+        bundle["metrics"] = metrics.model_dump()
+        json.dump(bundle, f, indent=2)
 
     print(run_result.to_rejection_log_text())
+    print(
+        f"Metrics: {metrics.total_attempts} attempt(s), {metrics.total_retries} retry(ies), "
+        f"{metrics.final_checks_passed}/{metrics.final_checks_total} checks passed on final "
+        f"attempt, {metrics.total_latency_seconds:.1f}s total latency"
+    )
 
     return {"final_status": status}

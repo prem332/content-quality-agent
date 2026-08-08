@@ -170,6 +170,28 @@ RunStatus = Literal[
 ]
 
 
+class AttemptMetrics(BaseModel):
+    attempt_number: int
+    checks_passed: int
+    checks_total: int
+    generation_latency_seconds: float
+    evaluation_latency_seconds: float
+
+
+class RunMetrics(BaseModel):
+    """Aggregate run-level metrics (CLAUDE.md build step 12: attempts,
+    retries, checks passed, latency, per attempt). Always computed from
+    RunResult.attempts rather than tracked separately, so there is only
+    one source of truth for per-attempt data."""
+
+    total_attempts: int
+    total_retries: int
+    final_checks_passed: int
+    final_checks_total: int
+    total_latency_seconds: float
+    per_attempt: list[AttemptMetrics]
+
+
 class RunResult(BaseModel):
     """Final output of a full run: what gets written to output/ and logs/,
     and what the API returns."""
@@ -182,6 +204,27 @@ class RunResult(BaseModel):
     total_attempts: int
     remaining_failures: list[str] = Field(default_factory=list)
     total_latency_seconds: float
+
+    def compute_metrics(self) -> RunMetrics:
+        per_attempt = [
+            AttemptMetrics(
+                attempt_number=r.attempt_number,
+                checks_passed=sum(1 for c in r.evaluation.checks if c.status == "PASS"),
+                checks_total=len(r.evaluation.checks),
+                generation_latency_seconds=r.generation_latency_seconds,
+                evaluation_latency_seconds=r.evaluation_latency_seconds,
+            )
+            for r in self.attempts
+        ]
+        final = per_attempt[-1] if per_attempt else None
+        return RunMetrics(
+            total_attempts=self.total_attempts,
+            total_retries=max(self.total_attempts - 1, 0),
+            final_checks_passed=final.checks_passed if final else 0,
+            final_checks_total=final.checks_total if final else 0,
+            total_latency_seconds=self.total_latency_seconds,
+            per_attempt=per_attempt,
+        )
 
     def to_rejection_log_text(self) -> str:
         """Human-readable, boxed rejection log -- THE key demo artifact
