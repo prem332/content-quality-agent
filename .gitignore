@@ -1,0 +1,31 @@
+# Internal planning docs -- not part of the submission, never committed
+CLAUDE.md
+ARCHITECTURE.md
+
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Runtime-generated (created fresh on each run, not source-controlled)
+logs/*.json
+memory/*.json
+output/*.md
+output/*.json
+
+# Chroma (rebuilt fresh in-memory per run per locked design decision --
+# nothing should persist here, but ignore defensively in case of local
+# testing with a persist_directory)
+chroma_db/
+*.sqlite3
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
