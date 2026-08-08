@@ -33,8 +33,11 @@ def _get_bool(key: str, default: bool) -> bool:
 # Model provider
 # ---------------------------------------------------------------------------
 
-GENERATOR_MODEL = os.environ.get("GENERATOR_MODEL", "gemini-2.5-flash")
-EVALUATOR_MODEL = os.environ.get("EVALUATOR_MODEL", "gemini-2.5-flash")
+# Defaults to gemini-flash-latest, not gemini-2.5-flash -- the pinned 2.5
+# version is blocked ("no longer available to new users") on freshly
+# created free-tier API keys, confirmed via a live API call.
+GENERATOR_MODEL = os.environ.get("GENERATOR_MODEL", "gemini-flash-latest")
+EVALUATOR_MODEL = os.environ.get("EVALUATOR_MODEL", "gemini-flash-latest")
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")
 
 if not GOOGLE_API_KEY:
