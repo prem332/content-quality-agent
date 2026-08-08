@@ -35,6 +35,13 @@ class LessonState(TypedDict):
     attempt: int  # starts at 1
     max_retries: int  # 2
 
+    # Transient: latency of the most recent generate_lesson call. Not in
+    # the original ARCHITECTURE.md Section 2 field list -- added because
+    # AttemptRecord.generation_latency_seconds needs to cross the
+    # generate_lesson -> evaluate_lesson node boundary somehow, and state
+    # is the only channel between nodes in LangGraph.
+    generation_latency_seconds: float
+
     memory_patterns: list[FailurePattern]  # loaded once at start, top N by occurrence
 
     attempts_log: list[AttemptRecord]  # accumulates every attempt for the rejection log
