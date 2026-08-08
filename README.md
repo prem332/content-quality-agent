@@ -148,10 +148,25 @@ artifact for showing the evaluator catching and reacting to a failure.
 python -m tests.evaluator.run_tests
 ```
 
-**Demo mode** (deliberate-failure injection for the Loom recording):
-set `DEMO_MODE` in `.env` to a supported value to force a known defect
+**Demo mode** (deliberate-failure injection for the Loom recording): set
+`DEMO_MODE=accuracy_failure` in `.env` to force a known factual defect
 into the first generation attempt, so the retry loop firing doesn't
-depend on hoping Gemini makes a mistake on camera.
+depend on hoping Gemini makes a mistake on camera. Verified reliably
+working end-to-end: attempt 1 correctly fails C1 (and C6, a defensible
+cascade — a wrong core-mechanism claim genuinely undermines the
+standalone learning outcome too), the retry fires with the right
+evidence/fix, and attempt 2 ships clean.
+
+`DEMO_MODE=jargon_failure` also exists but proved unreliable in testing
+— across four escalating attempts to instruct the model to leave
+`embedding`/`vector database`/`semantic search` undefined, it kept
+"healing" itself by adding a new, unprompted explanatory section
+elsewhere in the lesson (a side effect of how strongly the generator's
+own system prompt pushes toward explaining everything — good for lesson
+quality, bad for forcing a demo failure via prompt instruction alone).
+`accuracy_failure` doesn't have this problem: a stated factual claim
+can't be "explained around" the way a missing definition can. Use
+`accuracy_failure` for the recording.
 
 ## Configuration
 
