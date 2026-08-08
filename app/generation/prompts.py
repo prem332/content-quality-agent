@@ -53,8 +53,13 @@ explain the basic idea afterward, without needing anything else.
 Target approximately 900-1,400 words. Do not exceed 1,600 words unless
 additional detail is necessary for technical clarity.
 
-Return only the lesson text, formatted with clear headings. Do not include
-any evaluator notes, meta-commentary, or explanation of what you are doing.
+Return only the lesson text, formatted for direct use in a plain text
+document -- do not use any markdown syntax. Use a capitalized line by
+itself for each section heading (not "#" or "##" symbols), a blank line
+to separate sections (not "---" dividers), and plain wording for
+emphasis (not "**" or "*" asterisks). Do not include any markdown
+symbols anywhere in the output. Do not include any evaluator notes,
+meta-commentary, or explanation of what you are doing.
 """
 
 RETRY_PROMPT = """You are an instructional content writer revising a beginner lesson based on
@@ -93,6 +98,9 @@ Revise the lesson above. You must:
    issues.
 
 Return the complete, revised, standalone lesson -- not a diff, not just
-the changed sections. Formatted with clear headings. Do not include any
-evaluator notes, meta-commentary, or explanation of what you changed.
+the changed sections. Formatted for direct use in a plain text document
+-- do not use any markdown syntax (no "#", "##", "---", "**", or "*"
+symbols); use capitalized heading lines and blank-line section breaks
+instead, matching the previous lesson's formatting style. Do not include
+any evaluator notes, meta-commentary, or explanation of what you changed.
 """
