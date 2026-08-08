@@ -5,11 +5,13 @@
 Imagine you ask an AI assistant a question about something it was never
 told about, like your company's newest leave policy. A normal AI model
 might not know the answer, because it only knows what it learned during
-its training. It cannot automatically learn new things after that
-training is finished, and it also does not know private information, like
-your company's own documents. RAG is a way to fix this problem, so the AI
-can answer questions using new or private information, without needing to
-be retrained.
+its training -- the one-time process where the model was built by
+learning from a huge amount of text. It cannot automatically learn new
+things after that training is finished, and it also does not know
+private information, like your company's own documents. RAG is a way to
+fix this problem, so the AI can answer questions using new or private
+information, without needing to go through that training process again
+(this is what "retrained" means).
 
 ## What is RAG?
 
@@ -24,10 +26,18 @@ question, the AI looks for new information again.
 
 ## How does RAG work?
 
-RAG works in two main steps.
+RAG works in three main steps. The first step happens ahead of time,
+before anyone asks a question. The other two steps happen every time a
+question is asked.
+
+**Step 0: Getting ready (done ahead of time).** Before anyone asks a
+question, the company's documents are split into small pieces. Each
+piece is turned into a list of numbers that captures its meaning. These
+pieces and their number-lists are stored together so they can be
+searched quickly later.
 
 **Step 1: Finding information.** When you ask a question, the system
-searches through a collection of documents. It looks for the parts that
+searches through the stored pieces. It looks for the parts that
 are related to your question. It does this by comparing the *meaning* of
 your question to the *meaning* of the stored text, not just matching the
 exact same words. This means it can find the right information even if
@@ -40,8 +50,9 @@ what it already knew.
 
 ## A worked example
 
-Let's say a company stores its policies in a set of documents. An employee
-asks a chatbot:
+Let's say a company stores its policies in a set of documents. Ahead of
+time, those documents were already split into pieces and prepared for
+searching, as described in Step 0 above. Now an employee asks a chatbot:
 
 **Question**: "How many days of sick leave do I get?"
 

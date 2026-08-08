@@ -12,10 +12,17 @@ combines two components: a retrieval step and a generation step.
 
 ## How does RAG work?
 
-The system embeds the query, performs vector similarity search across an
-indexed knowledge base, retrieves the top-k most similar chunks, and
-injects them into the model's context window before generation. An
-embedding is a numerical representation of text that captures its
+Before any question is asked, the source documents are split into
+chunks. Each chunk is converted into an embedding and stored in an
+index, sometimes called a vector database.
+
+When a query arrives, the system embeds the query. It then performs a
+vector similarity search across the index. This search retrieves the
+best few matching chunks, for example the best 3 or 5. This is often
+called "top-k" retrieval. The retrieved chunks are injected into the
+model's context window before generation.
+
+An embedding is a numerical representation of text that captures its
 meaning, allowing the system to compare how similar two pieces of text
 are, even if they use different words. The context window is the portion
 of text the model reads before producing its response.

@@ -18,15 +18,20 @@ own parameters are not changed by this process.
 
 ## How does RAG work?
 
-1. A user asks a question.
-2. The question is converted into an embedding.
-3. The system performs semantic search over a vector database to find the
-   most relevant chunks.
-4. The retriever selects the top-k chunks.
-5. These chunks are given to the AI model, along with the original
+1. Before any question is asked, the documents are prepared and
+   organized ahead of time so they can be searched quickly later.
+2. A user asks a question.
+3. The question is converted into an embedding.
+4. The system performs semantic search over the vector database to find
+   the most relevant chunks.
+5. The retriever selects the top-k chunks.
+6. These chunks are given to the AI model, along with the original
    question, and the AI writes an answer using them.
 
 ## A worked example
+
+Before the question was asked, the relevant company documents had
+already been prepared and organized as described above.
 
 **Question**: "What is our company's refund policy?"
 

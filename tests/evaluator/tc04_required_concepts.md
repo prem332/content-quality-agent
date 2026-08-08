@@ -10,16 +10,23 @@ model's own settings are not changed by this process.
 
 ## How does RAG work?
 
-1. A user asks a question.
-2. The system looks through a collection of documents to find the parts
+1. Before any question is asked, the documents are split into small
+   pieces called chunks, and each chunk is turned into a list of numbers
+   called an embedding. These chunks and their embeddings are stored
+   ahead of time so they can be searched later.
+2. A user asks a question.
+3. The system looks through the stored chunks to find the parts
    that are related to the question. This step is called "retrieval," and
    it works by comparing the meaning of the question to the meaning of
    each stored piece of text, not just matching exact words.
-3. The most related pieces of text are given to the AI model, along with
+4. The most related pieces of text are given to the AI model, along with
    the original question.
-4. The AI reads this information and writes an answer using it.
+5. The AI reads this information and writes an answer using it.
 
 ## A worked example
+
+The policy document was already split into chunks and stored ahead of
+time, as described above.
 
 **Question**: "What is our company's refund policy?"
 

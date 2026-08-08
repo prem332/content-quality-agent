@@ -25,17 +25,27 @@ particular question.
 
 ## How does RAG work?
 
+Prior to any question being posed, the documents comprising the knowledge
+source are first partitioned into discrete segments, and a summary
+representation of the meaning of each segment is generated in advance and
+stored within a specialized repository, so that the segments may be
+efficiently located when a relevant question is later submitted.
+
 The two steps described above occur in the following order. First, when a
-question is asked, the system searches through a collection of stored
+question is asked, the system searches through the previously stored
 information in order to locate the portions most relevant to that
 question, a determination made on the basis of meaning rather than exact
 wording, so that relevant information can be found even if it is phrased
-differently from the question itself. Second, the portions of information
-identified as most relevant are combined with the original question and
-given to the model, which then uses both together to produce its
-response.
+differently from the document's phrasing. Second, the portions of
+information identified as most relevant are combined with the original
+question and given to the model, which then uses both together to produce
+its response.
 
 ## A worked example
+
+It should be noted that, prior to this exchange, the relevant policy
+documents had already been segmented and stored in the manner described
+above.
 
 **Question**: "What is our company's refund policy?"
 

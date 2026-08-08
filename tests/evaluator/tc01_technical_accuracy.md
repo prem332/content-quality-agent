@@ -20,14 +20,21 @@ forever, even in future unrelated conversations.
 
 ## How does RAG work?
 
-1. A user asks a question.
-2. The system searches a collection of documents to find the parts that
-   are related to the question. This is called retrieval.
-3. The retrieved information is given to the AI model, along with the
+1. Before any question is asked, the company's documents are split into
+   small pieces called chunks, and each chunk is turned into a list of
+   numbers called an embedding. These chunks and their embeddings are
+   stored ahead of time so they can be searched later.
+2. A user asks a question.
+3. The system searches the stored chunks to find the parts that are
+   related to the question. This is called retrieval.
+4. The retrieved information is given to the AI model, along with the
    original question.
-4. The AI reads this information and writes an answer using it.
+5. The AI reads this information and writes an answer using it.
 
 ## A worked example
+
+The company's policy documents were already split into chunks and stored
+ahead of time, as described above.
 
 **Question**: "What is our company's refund policy?"
 
