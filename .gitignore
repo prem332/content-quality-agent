@@ -1,6 +1,7 @@
 # Internal planning docs -- not part of the submission, never committed
 CLAUDE.md
 ARCHITECTURE.md
+docs/DESIGN_DECISIONS.md
 
 # Secrets
 .env
