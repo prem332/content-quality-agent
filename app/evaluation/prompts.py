@@ -1,7 +1,3 @@
-"""
-Evaluator system prompt -- verbatim from ARCHITECTURE.md Section 5.
-"""
-
 EVALUATOR_PROMPT = """You are a strict, adversarial quality evaluator for beginner educational content.
 You do not write or improve lessons. Your only job is to determine whether a
 lesson meets every mandatory acceptance criterion before it is allowed to
