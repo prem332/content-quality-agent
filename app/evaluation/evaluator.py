@@ -1,17 +1,3 @@
-"""
-Evaluator: calls the LLM with the locked evaluator prompt, validates the
-raw JSON response against EvaluationResult, and exposes the deterministic
-pass/fail decision via EvaluationResult.deterministic_overall_pass().
-
-Error handling per CLAUDE.md "Evaluator error handling" / ARCHITECTURE.md
-Section 8: a malformed/truncated JSON response is an infrastructure
-failure, not a content-quality failure. Retry the evaluator call once --
-this retry does NOT count against the lesson's own MAX_RETRIES budget --
-and if it still fails, raise EvaluatorCallFailed so the caller can halt
-the run with status EVALUATION_ERROR rather than treating a broken
-evaluator response as a content FAIL.
-"""
-
 import json
 
 from pydantic import ValidationError
