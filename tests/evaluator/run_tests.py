@@ -1,16 +1,3 @@
-"""
-Evaluator test suite runner (ARCHITECTURE.md Section 10). Loads
-test_cases.json, sends each referenced lesson to the real evaluator using
-the same retrieval-driven grounding context production uses, and reports
-actual vs. expected failures per case.
-
-If a case shows an unintended secondary failure, that is reported
-honestly as a test-isolation issue -- the evaluator's strictness is never
-adjusted just to force a clean pass rate.
-
-Run with: python -m tests.evaluator.run_tests
-"""
-
 import json
 import os
 
