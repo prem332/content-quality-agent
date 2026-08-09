@@ -1,12 +1,3 @@
-"""
-Swappable LLM provider abstraction.
-
-Both the generator and evaluator call an LLM only through this interface,
-never the Gemini SDK directly, so a future swap to a different provider
-(once billing exists -- see CLAUDE.md "Non-negotiable constraints") is a
-config change, not a redesign.
-"""
-
 from abc import ABC, abstractmethod
 
 from google import genai
