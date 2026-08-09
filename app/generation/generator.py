@@ -1,14 +1,3 @@
-"""
-Generator: builds the first-attempt or targeted-retry prompt and calls
-the LLM through the LLMProvider abstraction.
-
-Error handling per ARCHITECTURE.md Section 8: a generator infrastructure
-failure (network error, API error, empty/blocked response) is never a
-content-quality failure. Retry the call once; if it still fails, raise
-GenerationError so the caller can halt the run with status
-GENERATION_ERROR rather than silently discarding or fabricating a lesson.
-"""
-
 import tiktoken
 
 from app.config import (
@@ -27,15 +16,6 @@ _ENCODING = tiktoken.get_encoding("cl100k_base")
 class GenerationError(Exception):
     """Generator infrastructure failure that survived one retry."""
 
-
-# ARCHITECTURE.md Section 11: deterministically inject one of the known
-# TC-style defects into the first generation attempt, so a Loom demo of
-# "the evaluator catching a deliberate error" doesn't depend on hoping
-# Gemini makes a mistake on camera. Applied only in generate_first_attempt
-# (never generate_retry) so the retry has a normal, unmodified chance to
-# fix it -- these are the same defect categories already validated by the
-# TC01/TC03 evaluator test fixtures, so the evaluator is known to catch
-# both reliably.
 DEMO_MODE_INSTRUCTIONS = {
     "accuracy_failure": (
         "\n\nDEMO OVERRIDE (this instruction exists only to demonstrate the "
@@ -78,15 +58,6 @@ def _format_grounding_context(chunks: list[str]) -> str:
 def _format_memory_patterns(patterns: list[FailurePattern]) -> str:
     if not patterns:
         return "None yet -- this is an early run."
-    # load_top_patterns() already caps by count (top N), so this rarely
-    # triggers in practice -- MEMORY_MAX_TOKENS is a token-budget safety
-    # net on top of that count-based cap, not the primary limiting
-    # mechanism, so memory can never balloon the generator prompt even if
-    # a future change to the count cap allows more/longer patterns through.
-    # Truncates by dropping whole pattern lines, never slicing token-wise
-    # mid-line -- a raw token-boundary cut can land mid-sentence (verified:
-    # "...Ensure what, why, how," with no closing clause), which would
-    # splice a broken instruction fragment into the generator prompt.
     lines: list[str] = []
     budget = MEMORY_MAX_TOKENS
     for p in patterns:
