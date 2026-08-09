@@ -1,8 +1,3 @@
-"""
-LangGraph wiring for the generate-evaluate-retry loop. See
-ARCHITECTURE.md Section 1 for the locked flow.
-"""
-
 from langgraph.graph import END, StateGraph
 
 from app.graph import nodes
