@@ -1,13 +1,3 @@
-"""
-LangGraph state for the generate-evaluate-retry loop.
-
-See ARCHITECTURE.md Section 2 for the locked schema and Section 1 for how
-each field is populated/consumed across the 6 graph nodes. The retry
-counter (`attempt`) lives here, in graph state, rather than a Python
-closure variable, so it survives correctly across separate node
-invocations.
-"""
-
 from typing import Literal, Optional, TypedDict
 
 from app.evaluation.schemas import (
@@ -35,11 +25,6 @@ class LessonState(TypedDict):
     attempt: int  # starts at 1
     max_retries: int  # 2
 
-    # Transient: latency of the most recent generate_lesson call. Not in
-    # the original ARCHITECTURE.md Section 2 field list -- added because
-    # AttemptRecord.generation_latency_seconds needs to cross the
-    # generate_lesson -> evaluate_lesson node boundary somehow, and state
-    # is the only channel between nodes in LangGraph.
     generation_latency_seconds: float
 
     memory_patterns: list[FailurePattern]  # loaded once at start, top N by occurrence
