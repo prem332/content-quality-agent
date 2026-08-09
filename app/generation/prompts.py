@@ -1,12 +1,3 @@
-"""
-Generator prompts -- verbatim from ARCHITECTURE.md Sections 4a and 4b.
-
-The retry prompt receives ONLY the failed checks' evidence+fix, not the
-full evaluation payload -- this is what converts "evaluator judgment"
-into "actionable regeneration instruction" (see ARCHITECTURE.md Section
-4b closing note).
-"""
-
 FIRST_ATTEMPT_PROMPT = """You are an instructional content writer creating a standalone beginner
 lesson for a specific learner.
 
