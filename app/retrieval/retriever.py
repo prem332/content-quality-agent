@@ -1,14 +1,3 @@
-"""
-Retrieval over knowledge/rag_reference.md: Chroma (in-memory, rebuilt
-fresh every run) + local MiniLM embeddings. See ARCHITECTURE.md Section 1a
-for the locked chunking/retrieval configuration.
-
-Chroma is intentionally NOT persisted (no persist_directory) -- the
-corpus is tiny and static, so rebuilding the index on every run is cheap
-and entirely avoids a persisted store falling out of sync with
-rag_reference.md.
-"""
-
 from langchain_chroma import Chroma
 from langchain_core.embeddings import Embeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -22,9 +11,6 @@ from app.config import (
     TOP_K,
 )
 
-# Locked in ARCHITECTURE.md ("Embeddings: local sentence-transformers/all-
-# MiniLM-L6-v2") -- not a .env-tunable value like the generator/evaluator
-# models, so it lives here rather than in config.py.
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 
