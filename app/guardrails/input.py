@@ -1,9 +1,3 @@
-"""
-Deterministic input guardrails (ARCHITECTURE.md Section 9) -- no LLM
-call. Blocks empty/oversized topics and topics containing prompt-
-injection-style phrases before the graph ever runs.
-"""
-
 from app.config import MAX_TOPIC_LENGTH, SUSPICIOUS_PATTERNS
 
 
