@@ -1,12 +1,3 @@
-"""
-FastAPI thin wrapper. Swagger /docs IS the interaction layer -- no
-frontend (see CLAUDE.md "Explicitly excluded").
-
-Always returns HTTP 200; the run's actual outcome (SHIPPED /
-SHIPPED_WITH_KNOWN_ISSUES / EVALUATION_ERROR / GENERATION_ERROR) is
-carried in the response body's `status` field, not the HTTP status code.
-"""
-
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
