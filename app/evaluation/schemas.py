@@ -1,20 +1,3 @@
-"""
-Core schemas for the self-evaluating lesson generator.
-
-Design principles locked during planning:
-1. The LLM provides evaluation evidence; deterministic Python logic owns
-   the final shipping decision. We never trust the LLM's own claimed
-   overall_pass -- we recompute it from individual check results.
-2. Evaluator infrastructure failures (malformed/truncated JSON) are a
-   distinct failure category from content-quality failures. A bad
-   evaluator response must never be silently treated as "the lesson
-   failed" -- see EvaluatorError.
-3. Memory stores summarized, reusable failure patterns -- never raw
-   historical logs.
-4. The rubric is versioned so runs are reproducible even if the rubric
-   wording changes later.
-"""
-
 from typing import Literal, Optional
 from pydantic import BaseModel, Field, field_validator
 
