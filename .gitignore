@@ -2,6 +2,8 @@
 CLAUDE.md
 ARCHITECTURE.md
 docs/DESIGN_DECISIONS.md
+docs/interview_prep.md
+PROJECT_REPORT_FOR_REVIEW.md
 
 # Secrets
 .env
@@ -13,9 +15,14 @@ __pycache__/
 .venv/
 venv/
 *.egg-info/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 
 # Runtime-generated (created fresh on each run, not source-controlled)
 logs/*.json
+logs/*.log
 memory/*.json
 output/*.md
 output/*.json
@@ -28,5 +35,6 @@ chroma_db/
 
 # OS / editor
 .DS_Store
+Thumbs.db
 .idea/
 .vscode/

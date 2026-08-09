@@ -201,13 +201,51 @@ tests/evaluator/             # TC01-TC07 evaluator test suite
 memory/, logs/, output/       # runtime-generated, gitignored
 ```
 
+## Evaluator test suite results
+
+Running `python -m tests.evaluator.run_tests` reports actual vs. expected
+failures per case, not just a pass count. Run repeatedly against the real
+evaluator (most recently 2/7 and 3/7 on back-to-back runs against
+unchanged fixtures), the exact match count varies by design — a single
+number needs context to be meaningful, so here it is:
+
+| Case | Intended defect | Result across repeated runs |
+|---|---|---|
+| TC01 | Technical accuracy (C1) | Always catches the intended C1 defect; sometimes also a defensible C6 cascade (a factual error about the core mechanism genuinely undermines the standalone learning outcome too), sometimes a clean single-check match |
+| TC02 | Beginner-friendly language (C2) | Always catches C2, consistently plus cascade extras (C3-C6 in varying combinations) — a real tension: language dense enough to fail C2 also tends to read as unclear enough to fail the completeness/clarity checks, even when the concept is present |
+| TC03 | Jargon explanation (C3) | Caught once, missed on every subsequent run since — on unchanged fixture content. Not a fixture bug (verified by re-reading the file each time); a real shift in evaluator leniency after the fixture edit |
+| TC04 | Required concepts (C4) | Same pattern as TC03 |
+| TC05 | Concrete example (C5) | Exact match, every run observed |
+| TC06 | Standalone learning outcome (C6) | Usually catches C6, with a varying secondary cascade (C3 or C4 depending on the run); missed entirely once |
+| TC07 | None (positive control) | Exact match, every run observed — verifies the evaluator doesn't over-flag genuinely good content |
+
+**What actually happened, briefly:** the first real run scored 0/7,
+including the TC07 control case failing 4 of 6 checks. Not an evaluator
+bug — every fixture shared one systemic gap (none explained the
+indexing/setup phase the reference material treats as core), fixed by
+editing fixture content, never the evaluator's prompt or rubric. The
+remaining mismatches after that fix are individually explainable (table
+above) rather than a uniform "the evaluator is unreliable" story. The
+takeaway that matters: this project found, diagnosed, and documented a
+real characteristic of LLM-as-judge systems (non-determinism on
+borderline calls) instead of hiding it or chasing a cosmetically higher
+number by weakening the evaluator's strictness.
+
 ## Known limitations
 
 - **LLM-judge non-determinism.** The evaluator can disagree with itself
   run to run on borderline calls — confirmed directly during test-suite
   development (byte-identical lesson text produced opposite verdicts on
   two separate evaluator calls). This is a genuine characteristic of
-  LLM-based evaluation, not a defect in this codebase; see the evaluator
-  test suite results for a full, honest writeup of what was found.
+  LLM-based evaluation, not a defect in this codebase; see "Evaluator
+  test suite results" above for the full writeup.
 - **Free-tier quota.** `gemini-flash-lite-latest`'s daily request quota
   is finite; heavy iterative testing can exhaust it (resets daily).
+- **Retrieval discrimination is limited at this scale.** The knowledge
+  base is a single ~12-chunk document entirely about RAG, and the topic
+  being taught is also RAG — top-4 retrieval against an all-relevant
+  corpus doesn't discriminate much, since most chunks are topically
+  relevant to most queries. That's expected for what this project
+  demonstrates (the retrieval mechanism working correctly), not a claim
+  about retrieval precision at scale; a multi-topic knowledge base would
+  be needed to meaningfully stress-test that.

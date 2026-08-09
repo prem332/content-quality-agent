@@ -9,10 +9,19 @@ GenerationError so the caller can halt the run with status
 GENERATION_ERROR rather than silently discarding or fabricating a lesson.
 """
 
-from app.config import DEMO_MODE, GENERATOR_MAX_TOKENS, GENERATOR_MODEL
+import tiktoken
+
+from app.config import (
+    DEMO_MODE,
+    GENERATOR_MAX_TOKENS,
+    GENERATOR_MODEL,
+    MEMORY_MAX_TOKENS,
+)
 from app.evaluation.schemas import FailurePattern, RubricCheck
 from app.generation.prompts import FIRST_ATTEMPT_PROMPT, RETRY_PROMPT
 from app.llm.provider import GeminiProvider, LLMProvider
+
+_ENCODING = tiktoken.get_encoding("cl100k_base")
 
 
 class GenerationError(Exception):
@@ -69,7 +78,25 @@ def _format_grounding_context(chunks: list[str]) -> str:
 def _format_memory_patterns(patterns: list[FailurePattern]) -> str:
     if not patterns:
         return "None yet -- this is an early run."
-    return "\n".join(f"- {p.instruction}" for p in patterns)
+    # load_top_patterns() already caps by count (top N), so this rarely
+    # triggers in practice -- MEMORY_MAX_TOKENS is a token-budget safety
+    # net on top of that count-based cap, not the primary limiting
+    # mechanism, so memory can never balloon the generator prompt even if
+    # a future change to the count cap allows more/longer patterns through.
+    # Truncates by dropping whole pattern lines, never slicing token-wise
+    # mid-line -- a raw token-boundary cut can land mid-sentence (verified:
+    # "...Ensure what, why, how," with no closing clause), which would
+    # splice a broken instruction fragment into the generator prompt.
+    lines: list[str] = []
+    budget = MEMORY_MAX_TOKENS
+    for p in patterns:
+        line = f"- {p.instruction}"
+        cost = len(_ENCODING.encode(line)) + (1 if lines else 0)  # +1 for the joining newline
+        if cost > budget:
+            break
+        lines.append(line)
+        budget -= cost
+    return "\n".join(lines) if lines else "None yet -- this is an early run."
 
 
 def _format_failed_checks(failed_checks: list[RubricCheck]) -> str:
