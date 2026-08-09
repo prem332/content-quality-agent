@@ -1,11 +1,3 @@
-# Internal planning docs -- not part of the submission, never committed
-CLAUDE.md
-ARCHITECTURE.md
-docs/DESIGN_DECISIONS.md
-docs/interview_prep.md
-PROJECT_REPORT_FOR_REVIEW.md
-Project_Report.docx
-
 # Secrets
 .env
 
@@ -21,16 +13,14 @@ venv/
 .coverage
 htmlcov/
 
-# Runtime-generated (created fresh on each run, not source-controlled)
+
 logs/*.json
 logs/*.log
 memory/*.json
 output/*.md
 output/*.json
 
-# Chroma (rebuilt fresh in-memory per run per locked design decision --
-# nothing should persist here, but ignore defensively in case of local
-# testing with a persist_directory)
+# Chroma
 chroma_db/
 *.sqlite3
 
