@@ -1,22 +1,3 @@
-"""
-Node implementations for the generate-evaluate-retry LangGraph.
-
-Six logical nodes only (ARCHITECTURE.md Section 1) -- the evaluator LLM
-call, Pydantic validation, and deterministic pass/fail computation all
-live inside evaluate_lesson rather than as separate nodes; rejection-log
-writing and memory pattern extraction both live inside finalize.
-
-Error handling: the ASCII flow diagram in ARCHITECTURE.md Section 1 shows
-plain unconditional edges (no branch for a generation/evaluation
-infrastructure failure) -- that diagram is the happy path, and Section 8's
-GENERATION_ERROR/EVALUATION_ERROR handling is layered on top of it here
-without changing the graph's edges: generate_lesson and evaluate_lesson
-catch their own infra failures and set final_status directly, and every
-downstream node/router checks state["final_status"] first and no-ops/
-short-circuits to finalize if it's already set. This keeps the graph
-topology exactly as documented while still halting the run correctly.
-"""
-
 import json
 import os
 import time
