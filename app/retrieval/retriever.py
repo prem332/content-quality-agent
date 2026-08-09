@@ -28,16 +28,32 @@ from app.config import (
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 
+_cached_model: SentenceTransformer | None = None
+
+
 class MiniLMEmbeddings(Embeddings):
     """Local, no-API-key embedding function backed by sentence-transformers.
 
     A small custom wrapper around SentenceTransformer rather than pulling
     in the langchain-huggingface package for a single model -- only
     embed_documents/embed_query are needed to satisfy langchain_chroma.
+
+    The model itself is cached at module level (loaded once, reused across
+    calls) -- retrieve_top_k() constructs a new MiniLMEmbeddings on every
+    call (once per /generate request, via retrieve_context), and without
+    this cache each call reloaded the model weights from scratch. Measured
+    live via LangSmith: ~7.5s of retrieve_context latency was pure model-
+    load overhead, not retrieval itself. This is unrelated to the locked
+    "rebuild the Chroma index fresh every run" decision -- that's about
+    the vector index (cheap corpus, avoids staleness), not the static
+    model weights, which are safe to share across calls within a process.
     """
 
     def __init__(self, model_name: str = EMBEDDING_MODEL_NAME) -> None:
-        self._model = SentenceTransformer(model_name)
+        global _cached_model
+        if _cached_model is None:
+            _cached_model = SentenceTransformer(model_name)
+        self._model = _cached_model
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
         return self._model.encode(list(texts), convert_to_numpy=True).tolist()
